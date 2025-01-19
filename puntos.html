@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concurso de Puntos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 60%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Concurso de Puntos</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Puntos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaAmigos">
+            <!-- Aquí se llenarán los amigos dinámicamente -->
+        </tbody>
+    </table>
+    <form id="formAgregar">
+        <input type="text" id="nombreAmigo" placeholder="Nombre del amigo" required>
+        <button type="submit">Agregar Amigo</button>
+    </form>
+    <script>
+        const tabla = document.getElementById("tablaAmigos");
+        const formAgregar = document.getElementById("formAgregar");
+        const nombreAmigoInput = document.getElementById("nombreAmigo");
+        const amigos = [];
+
+        // Función para actualizar la tabla
+        function actualizarTabla() {
+            tabla.innerHTML = ""; // Limpiar la tabla
+            amigos.forEach((amigo, index) => {
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                    <td>${amigo.nombre}</td>
+                    <td>${amigo.puntos}</td>
+                    <td>
+                        <button onclick="sumarPunto(${index})">+1</button>
+                        <button onclick="restarPunto(${index})" ${amigo.puntos === 0 ? "disabled" : ""}>-1</button>
+                    </td>
+                `;
+                tabla.appendChild(fila);
+            });
+        }
+
+        // Agregar amigo
+        formAgregar.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const nombre = nombreAmigoInput.value.trim();
+            if (nombre) {
+                amigos.push({ nombre, puntos: 0 });
+                nombreAmigoInput.value = ""; // Limpiar el campo de texto
+                actualizarTabla();
+            }
+        });
+
+        // Sumar punto
+        function sumarPunto(index) {
+            amigos[index].puntos++;
+            actualizarTabla();
+        }
+
+        // Restar punto
+        function restarPunto(index) {
+            if (amigos[index].puntos > 0) {
+                amigos[index].puntos--;
+                actualizarTabla();
+            }
+        }
+    </script>
+</body>
+</html>
