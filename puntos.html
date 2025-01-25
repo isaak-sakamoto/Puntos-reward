@@ -3,106 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concurso de Puntos</title>
+    <title>Seguimiento de Ejercicios</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
-            padding: 20px;
+            margin: 20px;
         }
         table {
-            margin: 20px auto;
+            margin: 0 auto;
             border-collapse: collapse;
-            width: 60%;
+            width: 50%;
         }
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #000;
             padding: 10px;
             text-align: center;
         }
         th {
-            background-color: #007BFF;
-            color: white;
+            background-color: #f4f4f4;
+        }
+        input[type="checkbox"] {
+            transform: scale(1.5);
         }
         button {
-            padding: 10px 15px;
-            margin: 5px;
-            border: none;
-            background-color: #28a745;
-            color: white;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
         }
-        button:disabled {
-            background-color: #ccc;
+        #log {
+            margin-top: 20px;
+            text-align: left;
+            max-width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 14px;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
-    <h1>Concurso de Puntos</h1>
-    <table>
+    <h1>Seguimiento de Ejercicios</h1>
+    <table id="tabla-ejercicios">
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Puntos</th>
-                <th>Acciones</th>
+                <th>Día</th>
+                <th>¿Ejercicio Realizado?</th>
             </tr>
         </thead>
-        <tbody id="tablaAmigos">
-            <!-- Aquí se llenarán los amigos dinámicamente -->
+        <tbody>
+            <tr>
+                <td>Lunes</td>
+                <td><input type="checkbox" id="lunes"></td>
+            </tr>
+            <tr>
+                <td>Martes</td>
+                <td><input type="checkbox" id="martes"></td>
+            </tr>
+            <tr>
+                <td>Miércoles</td>
+                <td><input type="checkbox" id="miercoles"></td>
+            </tr>
+            <tr>
+                <td>Jueves</td>
+                <td><input type="checkbox" id="jueves"></td>
+            </tr>
+            <tr>
+                <td>Viernes</td>
+                <td><input type="checkbox" id="viernes"></td>
+            </tr>
+            <tr>
+                <td>Sábado</td>
+                <td><input type="checkbox" id="sabado"></td>
+            </tr>
+            <tr>
+                <td>Domingo</td>
+                <td><input type="checkbox" id="domingo"></td>
+            </tr>
         </tbody>
     </table>
-    <form id="formAgregar">
-        <input type="text" id="nombreAmigo" placeholder="Nombre del amigo" required>
-        <button type="submit">Agregar Amigo</button>
-    </form>
-    <script>
-        const tabla = document.getElementById("tablaAmigos");
-        const formAgregar = document.getElementById("formAgregar");
-        const nombreAmigoInput = document.getElementById("nombreAmigo");
-        const amigos = [];
 
-        // Función para actualizar la tabla
-        function actualizarTabla() {
-            tabla.innerHTML = ""; // Limpiar la tabla
-            amigos.forEach((amigo, index) => {
-                const fila = document.createElement("tr");
-                fila.innerHTML = `
-                    <td>${amigo.nombre}</td>
-                    <td>${amigo.puntos}</td>
-                    <td>
-                        <button onclick="sumarPunto(${index})">+1</button>
-                        <button onclick="restarPunto(${index})" ${amigo.puntos === 0 ? "disabled" : ""}>-1</button>
-                    </td>
-                `;
-                tabla.appendChild(fila);
+    <button onclick="guardarSemana()">Semana Siguiente</button>
+    <button onclick="mostrarRecuento()">Recuento Mensual</button>
+
+    <div id="log"></div>
+
+    <p id="resultado" style="margin-top: 20px; font-weight: bold;"></p>
+
+    <script>
+        let semanaActual = 1;
+
+        // Guardar el estado de los checkboxes al hacer clic
+        document.querySelectorAll("input[type='checkbox']").forEach(checkbox => {
+            checkbox.addEventListener("change", () => {
+                guardarEstadoCheckbox(checkbox.id, checkbox.checked);
+            });
+        });
+
+        // Guardar el estado de un checkbox en localStorage
+        function guardarEstadoCheckbox(id, estado) {
+            localStorage.setItem(id, estado);
+        }
+
+        // Cargar el estado de los checkboxes al cargar la página
+        function cargarEstadosCheckboxes() {
+            document.querySelectorAll("input[type='checkbox']").forEach(checkbox => {
+                const estadoGuardado = localStorage.getItem(checkbox.id) === "true";
+                checkbox.checked = estadoGuardado;
             });
         }
 
-        // Agregar amigo
-        formAgregar.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const nombre = nombreAmigoInput.value.trim();
-            if (nombre) {
-                amigos.push({ nombre, puntos: 0 });
-                nombreAmigoInput.value = ""; // Limpiar el campo de texto
-                actualizarTabla();
-            }
-        });
+        function guardarSemana() {
+            const checkboxes = document.querySelectorAll("input[type='checkbox']");
+            let diasCompletados = 0;
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) diasCompletados++;
+            });
 
-        // Sumar punto
-        function sumarPunto(index) {
-            amigos[index].puntos++;
-            actualizarTabla();
+            // Guardar en localStorage
+            localStorage.setItem(`semana_${semanaActual}`, diasCompletados);
+
+            // Mostrar mensaje debajo
+            const log = document.getElementById("log");
+            const mensaje = `Semana ${semanaActual} guardada: ${diasCompletados} días completados.`;
+            const parrafo = document.createElement("p");
+            parrafo.textContent = mensaje;
+            log.appendChild(parrafo);
+
+            semanaActual++;
         }
 
-        // Restar punto
-        function restarPunto(index) {
-            if (amigos[index].puntos > 0) {
-                amigos[index].puntos--;
-                actualizarTabla();
+        function mostrarRecuento() {
+            let totalDias = 0;
+
+            // Sumar los días completados de cada semana
+            for (let i = 1; i <= 4; i++) { // Suponiendo un mes de 4 semanas
+                const dias = parseInt(localStorage.getItem(`semana_${i}`)) || 0;
+                totalDias += dias;
             }
+
+            // Mostrar el recuento
+            const resultado = document.getElementById("resultado");
+            resultado.textContent = `En el último mes completaste ${totalDias} días de ejercicio.`;
         }
+
+        // Cargar los estados al abrir la página
+        window.onload = cargarEstadosCheckboxes;
     </script>
 </body>
 </html>
